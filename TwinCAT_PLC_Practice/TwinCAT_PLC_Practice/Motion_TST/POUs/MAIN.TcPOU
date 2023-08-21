@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.18">
+  <POU Name="MAIN" Id="{4611e5d9-ddc8-44f3-9dcc-0472ff0a63ff}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	// Define EPICS interface (struct) for moving motor
+	{attribute 'pytmc' := 'pv: PRACTICE:PLC_MOT'}
+	{attribute 'TcLinkTo' := '.nRawEncoderULINT     := TIID^Device 1 (EtherCAT)^Term 1 (EK1200)^Term 4 (EL5042)^FB Inputs Channel 1^Position'}
+	M1: ST_MotionStage := (sName := 'PRACTICE:PLC_MOT',
+                        bPowerSelf := TRUE); // opt out of PMPS and handle motor enabling within FB_MotionStage
+
+	// Attribute Linking Hardware
+	// Inputs (limit switch)
+	{attribute 'TcLinkTo' := 'TIID^Device 1 (EtherCAT)^Term 1 (EK1200)^Term 3 (EL1084)^Channel 1^Input'}
+	bLimitBackwardEnable AT %I* : BOOL;
+
+	{attribute 'TcLinkTo' := 'TIID^Device 1 (EtherCAT)^Term 1 (EK1200)^Term 3 (EL1084)^Channel 2^Input'}
+	bLimitForwardEnable AT %I* : BOOL;
+
+	// Function Block logic
+	fbMotion1 : FB_MotionStage;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Limit switch is NPN, while motion library is uses PNP
+M1.bLimitBackwardEnable := NOT bLimitBackwardEnable;
+M1.bLimitForwardEnable := NOT bLimitForwardEnable;
+
+M1.bHardwareEnable := TRUE; // ok to move
+
+// Invoke function block call
+fbMotion1(stMotionStage := M1);]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="30" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

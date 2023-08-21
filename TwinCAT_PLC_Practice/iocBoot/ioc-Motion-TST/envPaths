@@ -1,0 +1,2 @@
+epicsEnvSet("IOC_TOP", "/c/Users/armenta1/Documents/TcXaeShell/TwinCAT_PLC_Projects/TwinCAT_PLC_Practice/iocBoot/ioc-Motion-TST")
+epicsEnvSet("IOC_DATA", "/cds/data/iocData")
